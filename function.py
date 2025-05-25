@@ -55,7 +55,7 @@ def run_front_claw_stalled(speed):
 def calibration_with_wall(distance):
     """Calibrate the robot using a wall."""
     robot.use_gyro(False)
-    robot.settings(straight_speed=500)
+    robot.settings(straight_speed=400)
     robot.straight(-distance, then=Stop.COAST)
     robot.reset()
 
@@ -99,16 +99,25 @@ def detect_color():
         s = detected_hsv.s
         v = detected_hsv.v
 
-        if h > 300:
-            detected_color = Color.RED
-        elif 180 < h < 220 and 15 < s < 30:
-            detected_color = Color.RED
-        elif 55 < h < 65 and s > 5 and v > 80:  # Improved sensitivity to yellow
-            detected_color = Color.YELLOW
-        elif 200 < h < 300 and s > 70 and v > 15:
-            detected_color = Color.BLUE
-        elif 140 < h < 170 and s > 60 and v > 10:
-            detected_color = Color.GREEN
+        if s < 10:
+            if v > 50:
+                detected_color = Color.WHITE
+            else:
+                detected_color = Color.NONE
+
+ # Treat as gray or unknown
+        else:
+            # Only if it's colorful enough, then try to detect color
+            if h > 300:
+                detected_color = Color.RED
+            elif 180 < h < 220 and 15 < s < 30:
+                detected_color = Color.RED
+            elif 55 < h < 65 and s > 20 and v > 80:
+                detected_color = Color.YELLOW
+            elif 200 < h < 300 and s > 70 and v > 15:
+                detected_color = Color.BLUE
+            elif 140 < h < 170 and s > 60 and v > 10:
+                detected_color = Color.GREEN
 
     # Catch saturated red tones
     if detected_hsv.h < 20 and detected_hsv.s > 90:
